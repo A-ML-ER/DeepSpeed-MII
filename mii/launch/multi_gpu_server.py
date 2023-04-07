@@ -16,7 +16,8 @@ from mii.grpc_related.restful_gateway import RestfulGatewayThread
 
 def decode_config_from_str(config_str):
     # str -> bytes
-    print("decode_config_from_str : " + config_str)
+    print(" decode_config_from_str  ")
+    print(config_str)
     b64_bytes = config_str.encode()
     # decode b64 bytes -> json bytes
     config_bytes = base64.urlsafe_b64decode(b64_bytes)
