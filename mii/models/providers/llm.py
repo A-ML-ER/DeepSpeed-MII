@@ -24,18 +24,24 @@ to getting the Bloom models working and will be refactored in a future PR
 
 class BloomPipeline(object):
     def __init__(self, model, tokenizer, checkpoint_dict):
+        print(" __init__ ")
         self.model = model
         self.tokenizer = tokenizer
         self.checkpoint_dict = checkpoint_dict
 
     def __call__(self, inputs, **kwargs):
+        print(" __init__ ")
         local_rank = int(os.getenv('LOCAL_RANK', '0'))
+        print(" local_rank ")
+        print(local_rank)
         torch.cuda.set_device(local_rank)
+        print(" torch.cuda.set_device(local_rank) ")
         if isinstance(self.model, InferenceEngine):
             self.model = self.model.module
 
         # expand proto list into py-list
         inputs = [i for i in inputs]
+        print(" self.tokenizer.batch_encode_plus ")
         tokens = self.tokenizer.batch_encode_plus(inputs,
                                                   return_tensors="pt",
                                                   padding=True)
@@ -120,6 +126,7 @@ def get_checkpoint_files_old(pretrained_model_name_or_path):
 
 
 def create_checkpoint_dict(model_name, model_path, mii_config):
+    print(" create_checkpoint_dict ")
     if USE_NEW_HF_CACHE:
         model_path = snapshot_download(model_name, cache_dir=model_path)
     if mii_config.checkpoint_dict:
@@ -141,7 +148,10 @@ def create_checkpoint_dict(model_name, model_path, mii_config):
 
 def _attempt_load(load_fn, model_name, cache_path, kwargs={}):
     try:
+        print(" _attempt_load  load_fn ")
         value = load_fn(model_name, **kwargs)
+        print(" _attempt_load success :")
+        print(value)
     except OSError:
         print(f'Attempted load but failed, retrying using cache_dir={cache_path}')
         value = load_fn(model_name, cache_dir=cache_path, **kwargs)
@@ -150,25 +160,35 @@ def _attempt_load(load_fn, model_name, cache_path, kwargs={}):
 
 # TODO: This function is a hack for the Bloom models and will be replaced with a LargeModel provider code path
 def load_hf_llm(model_path, model_name, task_name, mii_config):
+    print(" load_hf_llm ")
     deepspeed.init_distributed('nccl')
+    print(" deepspeed.init_distributed   nccl ")
     local_rank = int(os.getenv('LOCAL_RANK', '0'))
     world_size = int(os.getenv('WORLD_SIZE', '1'))
 
     cache_path = mii_cache_path()
 
+    print(" tokenizer = _attempt_load ")
     tokenizer = _attempt_load(AutoTokenizer.from_pretrained,
                               model_name,
                               cache_path,
                               kwargs={"padding_side": 'left'})
+    print(" tokenizer =  ")
+    print(tokenizer)
     tokenizer.pad_token = tokenizer.eos_token
-
+    print(" model    _attempt_load ")
     config = _attempt_load(AutoConfig.from_pretrained, model_name, cache_path)
+    print(config)
 
     with OnDevice(dtype=torch.float16, device='meta', enabled=True):
         model = AutoModelForCausalLM.from_config(config, torch_dtype=torch.bfloat16)
     model = model.eval()
+    print(" model   load succes !!!!!!!!! ")
+
     checkpoint_dict = create_checkpoint_dict(model_name, model_path, mii_config)
+    print(" torch.distributed.barrier() =  ")
     torch.distributed.barrier()
+    print(" success  torch.distributed.barrier() =  ")
     inference_pipeline = BloomPipeline(model=model,
                                        tokenizer=tokenizer,
                                        checkpoint_dict=checkpoint_dict)
