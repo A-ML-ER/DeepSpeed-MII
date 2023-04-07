@@ -179,6 +179,8 @@ class MIIServer():
                               lb_config):
 
         # serialize mii config
+        print(" server.py  _launch_load_balancer  lb_config ")
+        print(lb_config)
         b64_config_str = config_to_b64_str(lb_config)
 
         return self._launch_server_process(

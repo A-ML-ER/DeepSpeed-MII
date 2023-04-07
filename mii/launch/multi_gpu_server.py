@@ -16,6 +16,7 @@ from mii.grpc_related.restful_gateway import RestfulGatewayThread
 
 def decode_config_from_str(config_str):
     # str -> bytes
+    print("decode_config_from_str : " + config_str)
     b64_bytes = config_str.encode()
     # decode b64 bytes -> json bytes
     config_bytes = base64.urlsafe_b64decode(b64_bytes)
@@ -77,6 +78,8 @@ def main():
 
     elif args.load_balancer is None:
         provider = mii.constants.MODEL_PROVIDER_MAP.get(args.provider, None)
+        print(" ----  provider : ")
+        print(provider)
         assert provider is not None, f"Unknown model provider: {args.provider}"
 
         assert args.port is not None, "port is required for inference server"
