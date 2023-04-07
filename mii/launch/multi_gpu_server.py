@@ -25,6 +25,8 @@ def decode_config_from_str(config_str):
 
 def main():
     parser = argparse.ArgumentParser()
+    print("  ---- start ----")
+    print(parser)
     parser.add_argument("-n", "--deployment-name", type=str, help="deployment name")
     parser.add_argument("-t", "--task-name", type=str, help="task name")
     parser.add_argument("-m", "--model", type=str, help="model name")
@@ -56,10 +58,12 @@ def main():
                         help="launch restful api gateway")
 
     args = parser.parse_args()
-
+    print(" --- args ---  ")
+    print(args)
     # de-serialize config object
     config_dict = decode_config_from_str(args.config)
     # convert dict -> mii config
+    print(config_dict)
     mii_config = MIIConfig(**config_dict)
 
     if args.restful_gateway:
