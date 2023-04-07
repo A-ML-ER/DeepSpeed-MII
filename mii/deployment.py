@@ -65,7 +65,10 @@ def deploy(task,
 
     """
     # parse and validate mii config
+    print(" -----------!!!!   deploy   -------------- ")
     mii_config = mii.config.MIIConfig(**mii_config)
+    print(" mii_config : ")
+    print(mii_config)
     if enable_zero:
         if ds_config.get("fp16", {}).get("enabled", False):
             assert (mii_config.dtype == torch.half), "MII Config Error: MII dtype and ZeRO dtype must match"

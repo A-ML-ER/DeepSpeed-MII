@@ -112,6 +112,8 @@ class MIIServer():
                            mii_configs,
                            port):
         # serialize mii config
+        print("  _build_server_args  ")
+        print(mii_configs)
         b64_config_str = config_to_b64_str(mii_configs)
 
         server_args_str = f"--deployment-name {deployment_name} --task-name {mii.utils.get_task_name(self.task)} --model {model_name} --model-path {model_path} --port {port}"
@@ -227,6 +229,7 @@ class MIIServer():
                                msg_server_type,
                                ds_launch_str=None,
                                ex_server_args=[]):
+        print(" _launch_server_process ")
         launch_str = f"{sys.executable} -m mii.launch.multi_gpu_server"
         server_args_str = self._build_server_args(deployment_name,
                                                   model_name,
@@ -264,6 +267,7 @@ class MIIServer():
                           deploy_ranks):
         # use different hostfiles for replica instances
         # pass /dev/null when no replica is used
+        print(" _launch_deepspeed  ")
         worker_str = f"-H {hostfile} "
         # pin deepspeed launch to specific gpu id(s)
         included_gpus = f"{host}:{','.join(map(str, deploy_ranks))}"
@@ -297,6 +301,7 @@ class MIIServer():
                             lb_config):
 
         processes = []
+        print("  _initialize_service ")
         if mii_configs.enable_load_balancing:
 
             # Start replica instances
