@@ -19,8 +19,10 @@ def decode_config_from_str(config_str):
     print(" decode_config_from_str  ")
     print(config_str)
     b64_bytes = config_str.encode()
+    print(b64_bytes)
     # decode b64 bytes -> json bytes
     config_bytes = base64.urlsafe_b64decode(b64_bytes)
+    print(config_bytes)
     # convert json bytes -> str -> dict
     return json.loads(config_bytes.decode())
 
@@ -85,8 +87,14 @@ def main():
 
         assert args.port is not None, "port is required for inference server"
         local_rank = int(os.getenv('LOCAL_RANK', '0'))
-        port = args.port + local_rank
+        print(" ---   local_rank  : ")
+        print(local_rank)
 
+        port = args.port + local_rank
+        print("  args.port + local_rank ")
+        print(port)
+
+        print("   !!!!!!!!!! load_models   ")
         inference_pipeline = load_models(task_name=args.task_name,
                                          model_name=args.model,
                                          model_path=args.model_path,
