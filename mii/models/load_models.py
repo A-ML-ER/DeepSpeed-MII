@@ -19,9 +19,16 @@ def load_models(task_name,
                 provider,
                 mii_config,
                 ds_config_path=None):
+    print(" start  load_models  -------- ")
     global generator
     local_rank = int(os.getenv('LOCAL_RANK', '0'))
     world_size = int(os.getenv('WORLD_SIZE', '1'))
+
+    print("   local_rank -------- ")
+    print(local_rank)
+
+    print("   world_size -------- ")
+    print(world_size)
 
     inf_config = {
         "tensor_parallel": {
@@ -38,11 +45,15 @@ def load_models(task_name,
         "max_tokens": mii_config.max_tokens
     }
 
+    print(provider)
     if provider == mii.constants.ModelProvider.HUGGING_FACE:
         from mii.models.providers.huggingface import hf_provider
         if "bigscience/bloom" in model_name:
             assert mii_config.dtype == torch.half or mii_config.dtype == torch.int8, "Bloom models only support fp16/int8"
             assert mii_config.enable_cuda_graph == False, "Bloom models do no support Cuda Graphs"
+
+        print("   provider == mii.constants.ModelProvider.HUGGING_FACE ")
+        print("hf_provider")
         inference_pipeline = hf_provider(model_path, model_name, task_name, mii_config)
     elif provider == mii.constants.ModelProvider.ELEUTHER_AI:
         from mii.models.providers.eleutherai import eleutherai_provider
